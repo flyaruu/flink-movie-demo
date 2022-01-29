@@ -12,6 +12,6 @@ jobs:
           MINORTAG=1.0
           TAG=$MINORTAG.$CIRCLE_BUILD_NUM
           echo "Building tag: $TAG"
-          docker build -t dexels/dvdrental:$TAG -t dexels/dvdrental:latest .
-          docker push dexels/dvdrental:$TAG 
-          docker push dexels/dvdrental:latest
+          docker build -t floodplain/dvdrental:$TAG -t floodplain/dvdrental:latest .
+          docker push floodplain/dvdrental:$TAG 
+          docker push floodplain/dvdrental:latest

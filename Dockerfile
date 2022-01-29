@@ -1,5 +1,5 @@
 # Init Example Database World on PostgreSQL 11
-FROM debezium/postgres:11
+FROM debezium/postgres:14
 
 ENV POSTGRES_USER postgres
 ENV POSTGRES_PASSWORD mysecretpassword 
