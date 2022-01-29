@@ -1,7 +1,7 @@
 version: '2'
 services:
   postgres:
-    image: dexels/dvdrental:1
+    image: floodplain/dvdrental:latest
     ports:
       - "5432:5432"
     environment:

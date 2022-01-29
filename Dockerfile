@@ -1,4 +1,4 @@
-# Init Example Database World on PostgreSQL 11
+# Init Example Database World on PostgreSQL 14
 FROM debezium/postgres:14
 
 ENV POSTGRES_USER postgres
