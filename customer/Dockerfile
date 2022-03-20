@@ -2,7 +2,6 @@
 FROM debezium/postgres:14
 
 ENV POSTGRES_USER postgres
-ENV POSTGRES_PASSWORD mysecretpassword 
 ENV POSTGRES_DB dvdrental 
 
 ADD scripts/* /docker-entrypoint-initdb.d/
