@@ -4,12 +4,17 @@ http://www.postgresqltutorial.com/postgresql-sample-database/
 
 Based on the debezium/postgres image, so it has change capture plugins installed.
 
-Building:
-docker build -t floodplain/dvdrental:1 .
+I've refactored and split the database into three separate services
 
-Usage:
+- film (including categories and actors)
+- customer (including address, city, country)
+- rental (payment, inventory store, etc.)
 
-docker-compose up
+In order to split this I obviously had to remove some constraints:
+inventory -> film_id
+store -> address
+staff -> address
+
 
 
 Loosely based on:
