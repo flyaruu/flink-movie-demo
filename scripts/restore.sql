@@ -73,23 +73,6 @@ CREATE DOMAIN year AS integer
 ALTER DOMAIN public.year OWNER TO postgres;
 
 --
--- Name: _group_concat(text, text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION _group_concat(text, text) RETURNS text
-    LANGUAGE sql IMMUTABLE
-    AS $_$
-SELECT CASE
-  WHEN $2 IS NULL THEN $1
-  WHEN $1 IS NULL THEN $2
-  ELSE $1 || ', ' || $2
-END
-$_$;
-
-
-ALTER FUNCTION public._group_concat(text, text) OWNER TO postgres;
-
---
 -- Name: film_in_stock(integer, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -362,19 +345,7 @@ $_$;
 
 ALTER FUNCTION public.rewards_report(min_monthly_purchases integer, min_dollar_amount_purchased numeric) OWNER TO postgres;
 
---
--- Name: group_concat(text); Type: AGGREGATE; Schema: public; Owner: postgres
---
 
-CREATE AGGREGATE group_concat(text) (
-    SFUNC = _group_concat,
-    STYPE = text
-);
-
-
-ALTER AGGREGATE public.group_concat(text) OWNER TO postgres;
-
---
 -- Name: actor_actor_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -493,16 +464,6 @@ CREATE TABLE film_category (
 ALTER TABLE public.film_category OWNER TO postgres;
 
 --
--- Name: actor_info; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW actor_info AS
-    SELECT a.actor_id, a.first_name, a.last_name, group_concat(DISTINCT (((c.name)::text || ': '::text) || (SELECT group_concat((f.title)::text) AS group_concat FROM ((film f JOIN film_category fc ON ((f.film_id = fc.film_id))) JOIN film_actor fa ON ((f.film_id = fa.film_id))) WHERE ((fc.category_id = c.category_id) AND (fa.actor_id = a.actor_id)) GROUP BY fa.actor_id))) AS film_info FROM (((actor a LEFT JOIN film_actor fa ON ((a.actor_id = fa.actor_id))) LEFT JOIN film_category fc ON ((fa.film_id = fc.film_id))) LEFT JOIN category c ON ((fc.category_id = c.category_id))) GROUP BY a.actor_id, a.first_name, a.last_name;
-
-
-ALTER TABLE public.actor_info OWNER TO postgres;
-
---
 -- Name: address_address_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -600,16 +561,6 @@ CREATE VIEW customer_list AS
 ALTER TABLE public.customer_list OWNER TO postgres;
 
 --
--- Name: film_list; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW film_list AS
-    SELECT film.film_id AS fid, film.title, film.description, category.name AS category, film.rental_rate AS price, film.length, film.rating, group_concat((((actor.first_name)::text || ' '::text) || (actor.last_name)::text)) AS actors FROM ((((category LEFT JOIN film_category ON ((category.category_id = film_category.category_id))) LEFT JOIN film ON ((film_category.film_id = film.film_id))) JOIN film_actor ON ((film.film_id = film_actor.film_id))) JOIN actor ON ((film_actor.actor_id = actor.actor_id))) GROUP BY film.film_id, film.title, film.description, category.name, film.rental_rate, film.length, film.rating;
-
-
-ALTER TABLE public.film_list OWNER TO postgres;
-
---
 -- Name: inventory_inventory_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -663,16 +614,6 @@ CREATE TABLE language (
 
 
 ALTER TABLE public.language OWNER TO postgres;
-
---
--- Name: nicer_but_slower_film_list; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW nicer_but_slower_film_list AS
-    SELECT film.film_id AS fid, film.title, film.description, category.name AS category, film.rental_rate AS price, film.length, film.rating, group_concat((((upper("substring"((actor.first_name)::text, 1, 1)) || lower("substring"((actor.first_name)::text, 2))) || upper("substring"((actor.last_name)::text, 1, 1))) || lower("substring"((actor.last_name)::text, 2)))) AS actors FROM ((((category LEFT JOIN film_category ON ((category.category_id = film_category.category_id))) LEFT JOIN film ON ((film_category.film_id = film.film_id))) JOIN film_actor ON ((film.film_id = film_actor.film_id))) JOIN actor ON ((film_actor.actor_id = actor.actor_id))) GROUP BY film.film_id, film.title, film.description, category.name, film.rental_rate, film.length, film.rating;
-
-
-ALTER TABLE public.nicer_but_slower_film_list OWNER TO postgres;
 
 --
 -- Name: payment_payment_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -836,7 +777,7 @@ ALTER TABLE public.staff_list OWNER TO postgres;
 COPY actor (actor_id, first_name, last_name, last_update) FROM stdin;
 \.
 --COPY actor (actor_id, first_name, last_name, last_update) FROM '/docker-entrypoint-initdb.d/2163.dat';
-COPY actor (actor_id, first_name, last_name, last_update) FROM '/docker-entrypoint-initdb.d/2163.dat';
+COPY actor (actor_id, first_name, last_name, last_update) FROM '/docker-entrypoint-initdb.d/actor.dat';
 
 --
 -- Name: actor_actor_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -851,7 +792,7 @@ SELECT pg_catalog.setval('actor_actor_id_seq', 200, true);
 
 COPY address (address_id, address, address2, district, city_id, postal_code, phone, last_update) FROM stdin;
 \.
-COPY address (address_id, address, address2, district, city_id, postal_code, phone, last_update) FROM '/docker-entrypoint-initdb.d/2171.dat';
+COPY address (address_id, address, address2, district, city_id, postal_code, phone, last_update) FROM '/docker-entrypoint-initdb.d/address.dat';
 
 --
 -- Name: address_address_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -866,7 +807,7 @@ SELECT pg_catalog.setval('address_address_id_seq', 605, true);
 
 COPY category (category_id, name, last_update) FROM stdin;
 \.
-COPY category (category_id, name, last_update) FROM '/docker-entrypoint-initdb.d/2165.dat';
+COPY category (category_id, name, last_update) FROM '/docker-entrypoint-initdb.d/category.dat';
 
 --
 -- Name: category_category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -881,7 +822,7 @@ SELECT pg_catalog.setval('category_category_id_seq', 16, true);
 
 COPY city (city_id, city, country_id, last_update) FROM stdin;
 \.
-COPY city (city_id, city, country_id, last_update) FROM '/docker-entrypoint-initdb.d/2173.dat';
+COPY city (city_id, city, country_id, last_update) FROM '/docker-entrypoint-initdb.d/city.dat';
 
 --
 -- Name: city_city_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -896,7 +837,7 @@ SELECT pg_catalog.setval('city_city_id_seq', 600, true);
 
 COPY country (country_id, country, last_update) FROM stdin;
 \.
-COPY country (country_id, country, last_update) FROM '/docker-entrypoint-initdb.d/2175.dat';
+COPY country (country_id, country, last_update) FROM '/docker-entrypoint-initdb.d/country.dat';
 
 --
 -- Name: country_country_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -911,7 +852,7 @@ SELECT pg_catalog.setval('country_country_id_seq', 109, true);
 
 COPY customer (customer_id, store_id, first_name, last_name, email, address_id, activebool, create_date, last_update, active) FROM stdin;
 \.
-COPY customer (customer_id, store_id, first_name, last_name, email, address_id, activebool, create_date, last_update, active) FROM '/docker-entrypoint-initdb.d/2177.dat';
+COPY customer (customer_id, store_id, first_name, last_name, email, address_id, activebool, create_date, last_update, active) FROM '/docker-entrypoint-initdb.d/customer.dat';
 
 --
 -- Name: customer_customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -926,7 +867,7 @@ SELECT pg_catalog.setval('customer_customer_id_seq', 599, true);
 
 COPY film (film_id, title, description, release_year, language_id, rental_duration, rental_rate, length, replacement_cost, rating, last_update, special_features, fulltext) FROM stdin;
 \.
-COPY film (film_id, title, description, release_year, language_id, rental_duration, rental_rate, length, replacement_cost, rating, last_update, special_features, fulltext) FROM '/docker-entrypoint-initdb.d/2167.dat';
+COPY film (film_id, title, description, release_year, language_id, rental_duration, rental_rate, length, replacement_cost, rating, last_update, special_features, fulltext) FROM '/docker-entrypoint-initdb.d/film.dat';
 
 --
 -- Data for Name: film_actor; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -934,7 +875,7 @@ COPY film (film_id, title, description, release_year, language_id, rental_durati
 
 COPY film_actor (actor_id, film_id, last_update) FROM stdin;
 \.
-COPY film_actor (actor_id, film_id, last_update) FROM '/docker-entrypoint-initdb.d/2168.dat';
+COPY film_actor (actor_id, film_id, last_update) FROM '/docker-entrypoint-initdb.d/film_actor.dat';
 
 --
 -- Data for Name: film_category; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -942,7 +883,7 @@ COPY film_actor (actor_id, film_id, last_update) FROM '/docker-entrypoint-initdb
 
 COPY film_category (film_id, category_id, last_update) FROM stdin;
 \.
-COPY film_category (film_id, category_id, last_update) FROM '/docker-entrypoint-initdb.d/2169.dat';
+COPY film_category (film_id, category_id, last_update) FROM '/docker-entrypoint-initdb.d/film_category.dat';
 
 --
 -- Name: film_film_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -957,7 +898,7 @@ SELECT pg_catalog.setval('film_film_id_seq', 1000, true);
 
 COPY inventory (inventory_id, film_id, store_id, last_update) FROM stdin;
 \.
-COPY inventory (inventory_id, film_id, store_id, last_update) FROM '/docker-entrypoint-initdb.d/2179.dat';
+COPY inventory (inventory_id, film_id, store_id, last_update) FROM '/docker-entrypoint-initdb.d/inventory.dat';
 
 --
 -- Name: inventory_inventory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -972,7 +913,7 @@ SELECT pg_catalog.setval('inventory_inventory_id_seq', 4581, true);
 
 COPY language (language_id, name, last_update) FROM stdin;
 \.
-COPY language (language_id, name, last_update) FROM '/docker-entrypoint-initdb.d/2181.dat';
+COPY language (language_id, name, last_update) FROM '/docker-entrypoint-initdb.d/language.dat';
 
 --
 -- Name: language_language_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -987,7 +928,7 @@ SELECT pg_catalog.setval('language_language_id_seq', 6, true);
 
 COPY payment (payment_id, customer_id, staff_id, rental_id, amount, payment_date) FROM stdin;
 \.
-COPY payment (payment_id, customer_id, staff_id, rental_id, amount, payment_date) FROM '/docker-entrypoint-initdb.d/2183.dat';
+COPY payment (payment_id, customer_id, staff_id, rental_id, amount, payment_date) FROM '/docker-entrypoint-initdb.d/payment.dat';
 
 --
 -- Name: payment_payment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -1002,7 +943,7 @@ SELECT pg_catalog.setval('payment_payment_id_seq', 32098, true);
 
 COPY rental (rental_id, rental_date, inventory_id, customer_id, return_date, staff_id, last_update) FROM stdin;
 \.
-COPY rental (rental_id, rental_date, inventory_id, customer_id, return_date, staff_id, last_update) FROM '/docker-entrypoint-initdb.d/2185.dat';
+COPY rental (rental_id, rental_date, inventory_id, customer_id, return_date, staff_id, last_update) FROM '/docker-entrypoint-initdb.d/rental.dat';
 
 --
 -- Name: rental_rental_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -1017,7 +958,7 @@ SELECT pg_catalog.setval('rental_rental_id_seq', 16049, true);
 
 COPY staff (staff_id, first_name, last_name, address_id, email, store_id, active, username, password, last_update, picture) FROM stdin;
 \.
-COPY staff (staff_id, first_name, last_name, address_id, email, store_id, active, username, password, last_update, picture) FROM '/docker-entrypoint-initdb.d/2187.dat';
+COPY staff (staff_id, first_name, last_name, address_id, email, store_id, active, username, password, last_update, picture) FROM '/docker-entrypoint-initdb.d/staff.dat';
 
 --
 -- Name: staff_staff_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -1032,7 +973,7 @@ SELECT pg_catalog.setval('staff_staff_id_seq', 2, true);
 
 COPY store (store_id, manager_staff_id, address_id, last_update) FROM stdin;
 \.
-COPY store (store_id, manager_staff_id, address_id, last_update) FROM '/docker-entrypoint-initdb.d/2189.dat';
+COPY store (store_id, manager_staff_id, address_id, last_update) FROM '/docker-entrypoint-initdb.d/store.dat';
 
 --
 -- Name: store_store_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
