@@ -328,16 +328,6 @@ CREATE TABLE country (
 ALTER TABLE public.country OWNER TO postgres;
 
 --
--- Name: customer_list; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW customer_list AS
-    SELECT cu.customer_id AS id, (((cu.first_name)::text || ' '::text) || (cu.last_name)::text) AS name, a.address, a.postal_code AS "zip code", a.phone, city.city, country.country, CASE WHEN cu.activebool THEN 'active'::text ELSE ''::text END AS notes, cu.store_id AS sid FROM (((customer cu JOIN address a ON ((cu.address_id = a.address_id))) JOIN city ON ((a.city_id = city.city_id))) JOIN country ON ((city.country_id = country.country_id)));
-
-
-ALTER TABLE public.customer_list OWNER TO postgres;
-
---
 -- Name: inventory_inventory_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -392,35 +382,6 @@ CREATE TABLE language (
 
 ALTER TABLE public.language OWNER TO postgres;
 
---
--- Name: payment_payment_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE payment_payment_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.payment_payment_id_seq OWNER TO postgres;
-
---
--- Name: payment; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE payment (
-    payment_id integer DEFAULT nextval('payment_payment_id_seq'::regclass) NOT NULL,
-    customer_id smallint NOT NULL,
-    staff_id smallint NOT NULL,
-    rental_id integer NOT NULL,
-    amount numeric(5,2) NOT NULL,
-    payment_date timestamp without time zone NOT NULL
-);
-
-
-ALTER TABLE public.payment OWNER TO postgres;
 
 --
 -- Name: rental_rental_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -451,17 +412,6 @@ CREATE TABLE rental (
 );
 
 
-ALTER TABLE public.rental OWNER TO postgres;
-
---
--- Name: sales_by_film_category; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW sales_by_film_category AS
-    SELECT c.name AS category, sum(p.amount) AS total_sales FROM (((((payment p JOIN rental r ON ((p.rental_id = r.rental_id))) JOIN inventory i ON ((r.inventory_id = i.inventory_id))) JOIN film f ON ((i.film_id = f.film_id))) JOIN film_category fc ON ((f.film_id = fc.film_id))) JOIN category c ON ((fc.category_id = c.category_id))) GROUP BY c.name ORDER BY sum(p.amount) DESC;
-
-
-ALTER TABLE public.sales_by_film_category OWNER TO postgres;
 
 --
 -- Name: staff_staff_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -527,25 +477,6 @@ CREATE TABLE store (
 
 ALTER TABLE public.store OWNER TO postgres;
 
---
--- Name: sales_by_store; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW sales_by_store AS
-    SELECT (((c.city)::text || ','::text) || (cy.country)::text) AS store, (((m.first_name)::text || ' '::text) || (m.last_name)::text) AS manager, sum(p.amount) AS total_sales FROM (((((((payment p JOIN rental r ON ((p.rental_id = r.rental_id))) JOIN inventory i ON ((r.inventory_id = i.inventory_id))) JOIN store s ON ((i.store_id = s.store_id))) JOIN address a ON ((s.address_id = a.address_id))) JOIN city c ON ((a.city_id = c.city_id))) JOIN country cy ON ((c.country_id = cy.country_id))) JOIN staff m ON ((s.manager_staff_id = m.staff_id))) GROUP BY cy.country, c.city, s.store_id, m.first_name, m.last_name ORDER BY cy.country, c.city;
-
-
-ALTER TABLE public.sales_by_store OWNER TO postgres;
-
---
--- Name: staff_list; Type: VIEW; Schema: public; Owner: postgres
---
-
-CREATE VIEW staff_list AS
-    SELECT s.staff_id AS id, (((s.first_name)::text || ' '::text) || (s.last_name)::text) AS name, a.address, a.postal_code AS "zip code", a.phone, city.city, country.country, s.store_id AS sid FROM (((staff s JOIN address a ON ((s.address_id = a.address_id))) JOIN city ON ((a.city_id = city.city_id))) JOIN country ON ((city.country_id = country.country_id)));
-
-
-ALTER TABLE public.staff_list OWNER TO postgres;
 
 --
 -- Data for Name: actor; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -699,20 +630,6 @@ COPY language (language_id, name, last_update) FROM '/docker-entrypoint-initdb.d
 SELECT pg_catalog.setval('language_language_id_seq', 6, true);
 
 
---
--- Data for Name: payment; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY payment (payment_id, customer_id, staff_id, rental_id, amount, payment_date) FROM stdin;
-\.
-COPY payment (payment_id, customer_id, staff_id, rental_id, amount, payment_date) FROM '/docker-entrypoint-initdb.d/payment.dat';
-
---
--- Name: payment_payment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('payment_payment_id_seq', 32098, true);
-
 
 --
 -- Data for Name: rental; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -847,13 +764,6 @@ ALTER TABLE ONLY language
     ADD CONSTRAINT language_pkey PRIMARY KEY (language_id);
 
 
---
--- Name: payment_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY payment
-    ADD CONSTRAINT payment_pkey PRIMARY KEY (payment_id);
-
 
 --
 -- Name: rental_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
@@ -894,13 +804,6 @@ CREATE INDEX idx_actor_last_name ON actor USING btree (last_name);
 
 
 --
--- Name: idx_fk_address_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX idx_fk_address_id ON customer USING btree (address_id);
-
-
---
 -- Name: idx_fk_city_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -914,11 +817,6 @@ CREATE INDEX idx_fk_city_id ON address USING btree (city_id);
 CREATE INDEX idx_fk_country_id ON city USING btree (country_id);
 
 
---
--- Name: idx_fk_customer_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX idx_fk_customer_id ON payment USING btree (customer_id);
 
 
 --
@@ -941,33 +839,6 @@ CREATE INDEX idx_fk_inventory_id ON rental USING btree (inventory_id);
 
 CREATE INDEX idx_fk_language_id ON film USING btree (language_id);
 
-
---
--- Name: idx_fk_rental_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX idx_fk_rental_id ON payment USING btree (rental_id);
-
-
---
--- Name: idx_fk_staff_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX idx_fk_staff_id ON payment USING btree (staff_id);
-
-
---
--- Name: idx_fk_store_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX idx_fk_store_id ON customer USING btree (store_id);
-
-
---
--- Name: idx_last_name; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX idx_last_name ON customer USING btree (last_name);
 
 
 --
@@ -1044,13 +915,6 @@ CREATE TRIGGER last_updated BEFORE UPDATE ON country FOR EACH ROW EXECUTE PROCED
 -- Name: last_updated; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
-CREATE TRIGGER last_updated BEFORE UPDATE ON customer FOR EACH ROW EXECUTE PROCEDURE last_updated();
-
-
---
--- Name: last_updated; Type: TRIGGER; Schema: public; Owner: postgres
---
-
 CREATE TRIGGER last_updated BEFORE UPDATE ON film FOR EACH ROW EXECUTE PROCEDURE last_updated();
 
 
@@ -1101,14 +965,6 @@ CREATE TRIGGER last_updated BEFORE UPDATE ON staff FOR EACH ROW EXECUTE PROCEDUR
 --
 
 CREATE TRIGGER last_updated BEFORE UPDATE ON store FOR EACH ROW EXECUTE PROCEDURE last_updated();
-
-
---
--- Name: customer_address_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY customer
-    ADD CONSTRAINT customer_address_id_fkey FOREIGN KEY (address_id) REFERENCES address(address_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -1174,29 +1030,6 @@ ALTER TABLE ONLY city
 ALTER TABLE ONLY inventory
     ADD CONSTRAINT inventory_film_id_fkey FOREIGN KEY (film_id) REFERENCES film(film_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
-
---
--- Name: payment_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY payment
-    ADD CONSTRAINT payment_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: payment_rental_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY payment
-    ADD CONSTRAINT payment_rental_id_fkey FOREIGN KEY (rental_id) REFERENCES rental(rental_id) ON UPDATE CASCADE ON DELETE SET NULL;
-
-
---
--- Name: payment_staff_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY payment
-    ADD CONSTRAINT payment_staff_id_fkey FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
