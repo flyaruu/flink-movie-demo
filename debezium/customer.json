@@ -1,0 +1,18 @@
+{
+  "name" : "customer",
+  "config" : {
+    "connector.class" : "io.debezium.connector.postgresql.PostgresConnector",
+    "database.user" : "postgres",
+    "database.dbname" : "dvdrental",
+    "database.hostname" : "customer",
+    "database.password" : "mysecretpassword",
+    "name" : "customer",
+    "database.port" : "5432",
+    "database.server.name" : "customer",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "key.converter.schemas.enable": "false",
+    "decimal.handling.mode": "double"
+  }
+}
