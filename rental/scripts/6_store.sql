@@ -28,7 +28,7 @@ CREATE TABLE store (
 
 
 ALTER TABLE public.store OWNER TO postgres;
-
+ALTER TABLE public.store REPLICA IDENTITY FULL;
 
 --
 -- Data for Name: store; Type: TABLE DATA; Schema: public; Owner: postgres

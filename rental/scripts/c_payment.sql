@@ -27,7 +27,7 @@ CREATE TABLE payment (
 
 
 ALTER TABLE public.payment OWNER TO postgres;
-
+ALTER TABLE public.payment REPLICA IDENTITY FULL;
 --
 -- Data for Name: payment; Type: TABLE DATA; Schema: public; Owner: postgres
 --

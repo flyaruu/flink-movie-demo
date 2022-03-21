@@ -34,7 +34,7 @@ CREATE TABLE staff (
 
 
 ALTER TABLE public.staff OWNER TO postgres;
-
+ALTER TABLE public.staff REPLICA IDENTITY FULL;
 
 --
 -- Data for Name: staff; Type: TABLE DATA; Schema: public; Owner: postgres

@@ -25,7 +25,8 @@ CREATE TABLE rental (
     staff_id smallint NOT NULL,
     last_update timestamp without time zone DEFAULT now() NOT NULL
 );
-
+ALTER TABLE public.rental OWNER TO postgres;
+ALTER TABLE public.rental REPLICA IDENTITY FULL;
 --
 -- Data for Name: rental; Type: TABLE DATA; Schema: public; Owner: postgres
 --

@@ -26,7 +26,7 @@ CREATE TABLE inventory (
 
 
 ALTER TABLE public.inventory OWNER TO postgres;
-
+ALTER TABLE public.inventory REPLICA IDENTITY FULL;
 
 --
 -- Data for Name: inventory; Type: TABLE DATA; Schema: public; Owner: postgres

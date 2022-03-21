@@ -29,7 +29,7 @@ CREATE TABLE address (
 
 
 ALTER TABLE public.address OWNER TO postgres;
-
+ALTER TABLE public.address REPLICA IDENTITY FULL;
 --
 -- Name: city_city_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
@@ -57,6 +57,7 @@ CREATE TABLE city (
 
 
 ALTER TABLE public.city OWNER TO postgres;
+ALTER TABLE public.city REPLICA IDENTITY FULL;
 
 --
 -- Name: country_country_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -84,6 +85,8 @@ CREATE TABLE country (
 
 
 ALTER TABLE public.country OWNER TO postgres;
+ALTER TABLE public.country REPLICA IDENTITY FULL;
+
 --
 -- Name: language_language_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --

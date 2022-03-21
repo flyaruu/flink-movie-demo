@@ -50,7 +50,7 @@ CREATE TABLE actor (
 
 
 ALTER TABLE public.actor OWNER TO postgres;
-
+ALTER TABLE public.actor REPLICA IDENTITY FULL;
 --
 -- Name: category_category_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
@@ -77,7 +77,7 @@ CREATE TABLE category (
 
 
 ALTER TABLE public.category OWNER TO postgres;
-
+ALTER TABLE public.category REPLICA IDENTITY FULL;
 --
 -- Name: film_film_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
@@ -114,7 +114,7 @@ CREATE TABLE film (
 
 
 ALTER TABLE public.film OWNER TO postgres;
-
+ALTER TABLE public.film REPLICA IDENTITY FULL;
 --
 -- Name: film_actor; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
@@ -127,7 +127,7 @@ CREATE TABLE film_actor (
 
 
 ALTER TABLE public.film_actor OWNER TO postgres;
-
+ALTER TABLE public.film_actor REPLICA IDENTITY FULL;
 --
 -- Name: film_category; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
@@ -140,6 +140,7 @@ CREATE TABLE film_category (
 
 
 ALTER TABLE public.film_category OWNER TO postgres;
+ALTER TABLE public.film_category REPLICA IDENTITY FULL;
 
 CREATE SEQUENCE language_language_id_seq
     START WITH 1
@@ -163,7 +164,7 @@ CREATE TABLE language (
 
 
 ALTER TABLE public.language OWNER TO postgres;
-
+ALTER TABLE public.language REPLICA IDENTITY FULL;
 
 --
 -- Data for Name: actor; Type: TABLE DATA; Schema: public; Owner: postgres
