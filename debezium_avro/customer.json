@@ -9,10 +9,9 @@
     "name" : "customer",
     "database.port" : "5432",
     "database.server.name" : "customer",
-    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter.schemas.enable": "false",
-    "key.converter.schemas.enable": "false",
-    "decimal.handling.mode": "double"
+    "key.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "key.converter.schema.registry.url": "http://redpanda:8081",
+    "value.converter.schema.registry.url": "http://redpanda:8081"
   }
 }
