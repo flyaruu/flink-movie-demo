@@ -39,7 +39,6 @@ services:
     container_name: mongo1
     image: mongo:4.4
     volumes:
-#      - ~/mongors/data1:/data/db
       - ./mongodb-replica-set/rs-init.sh:/scripts/rs-init.sh
     ports:
       - 27017:27017
@@ -47,26 +46,6 @@ services:
     #   - mongo2
     restart: always
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]        
-# mongo2:
-#   container_name: mongo2
-#   image: mongo:4.4
-#   ports:
-#     - 27022:27017
-#   restart: always
-#   entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
-#   mongo:
-#     image: 'bitnami/mongodb:latest'
-#     ports:
-#       - "27017:27017"
-#     environment:
-#       - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
-#       - MONGODB_REPLICA_SET_MODE=primary
-# #      - MONGODB_ROOT_PASSWORD=password123
-#       - MONGODB_REPLICA_SET_KEY=replicasetkey123
-  #mongo:
-  #  image: mongo:4.0
-  #  ports:
-  #    - "27017:27017"      
   analytics-postgres:
     image: postgres:14
     restart: always
