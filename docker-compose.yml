@@ -18,6 +18,55 @@ services:
       - "5434:5432"
     environment:
       POSTGRES_PASSWORD: mysecretpassword
+
+  cdcservice:
+    image: floodplain/demo-movie:latest
+    environment:
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_REACTIVE_URL: postgresql://rental:5432/dvdrental
+    depends_on:
+      - "rental"
+    ports:
+      - "8084:8080"
+  review:
+    image: floodplain/demo-mongodb-review:latest
+    environment:
+      MONGODB_CONNECTION_STRING: mongodb://mongo1:27017/?replicaSet=dbrs
+    depends_on:
+      - mongo1
+  mongo1:
+    container_name: mongo1
+    image: mongo:4.4
+    volumes:
+#      - ~/mongors/data1:/data/db
+      - ./mongodb-replica-set/rs-init.sh:/scripts/rs-init.sh
+    ports:
+      - 27017:27017
+    # links:
+    #   - mongo2
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]        
+# mongo2:
+#   container_name: mongo2
+#   image: mongo:4.4
+#   ports:
+#     - 27022:27017
+#   restart: always
+#   entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+#   mongo:
+#     image: 'bitnami/mongodb:latest'
+#     ports:
+#       - "27017:27017"
+#     environment:
+#       - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+#       - MONGODB_REPLICA_SET_MODE=primary
+# #      - MONGODB_ROOT_PASSWORD=password123
+#       - MONGODB_REPLICA_SET_KEY=replicasetkey123
+  #mongo:
+  #  image: mongo:4.0
+  #  ports:
+  #    - "27017:27017"      
   analytics-postgres:
     image: postgres:14
     restart: always
@@ -47,6 +96,7 @@ services:
     image: docker.vectorized.io/vectorized/redpanda:v21.11.4
     container_name: redpanda-1
     ports:
+    - 8080:8081
     - 9092:9092
     - 29092:29092
   kafkaui:
@@ -59,8 +109,6 @@ services:
       - BOOTSTRAP_SERVERS=redpanda:29092
   connect:
     image: debezium/connect:1.8.1.Final
-#    logging:
-#      driver: none
     depends_on: 
       - redpanda
     ports:
@@ -70,6 +118,10 @@ services:
       - CONFIG_STORAGE_TOPIC=topic-config
       - OFFSET_STORAGE_TOPIC=offset-storage
       - LOG_LEVEL=INFO
+      - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://redpanda:8081
+      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://redpanda:8081
   jobmanager:
     build: ./flink
     ports:
