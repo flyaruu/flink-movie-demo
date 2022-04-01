@@ -11,7 +11,18 @@ jobs:
       - run: |
           MINORTAG=1.0
           TAG=$MINORTAG.$CIRCLE_BUILD_NUM
+          IMAGE=floodplain/film
           echo "Building tag: $TAG"
-          docker build -t floodplain/dvdrental:$TAG -t floodplain/dvdrental:latest .
-          docker push floodplain/dvdrental:$TAG 
-          docker push floodplain/dvdrental:latest
+          docker build -t $IMAGE:$TAG -t $IMAGE:latest ./film
+          docker push $IMAGE:$TAG 
+          docker push $IMAGE:latest
+          IMAGE=floodplain/customer
+          echo "Building tag: $TAG"
+          docker build -t $IMAGE:$TAG -t $IMAGE:latest ./customer
+          docker push $IMAGE:$TAG 
+          docker push $IMAGE:latest
+          IMAGE=floodplain/rental
+          echo "Building tag: $TAG"
+          docker build -t $IMAGE:$TAG -t $IMAGE:latest ./rental
+          docker push $IMAGE:$TAG 
+          docker push $IMAGE:latest
