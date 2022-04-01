@@ -1,19 +1,19 @@
 version: '2'
 services:
   film:
-    build: film
+    image: floodplain/film-database:latest
     ports:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: mysecretpassword
   customer:
-    build: customer
+    image: floodplain/customer-database:latest
     ports:
       - "5433:5432"
     environment:
       POSTGRES_PASSWORD: mysecretpassword
   rental:
-    build: rental
+    image: floodplain/rental-database:latest
     ports:
       - "5434:5432"
     environment:
@@ -47,13 +47,11 @@ services:
     restart: always
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]        
   analytics-postgres:
-    image: postgres:14
-    restart: always
+    image: floodplain/analytics-database:latest
     ports:
       - "5435:5432"
     environment:
       POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: movie_analytics
   redpanda:
     command:
     - redpanda
@@ -104,7 +102,7 @@ services:
       - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://redpanda:8081
       - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://redpanda:8081
   jobmanager:
-    build: ./flink
+    image: floodplain/flink:latest
     ports:
       - "8081:8081"
     command: jobmanager
@@ -113,7 +111,7 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
   taskmanager:
-    build: ./flink
+    image: floodplain/flink:latest
     depends_on:
       - jobmanager
     command: taskmanager
@@ -124,7 +122,7 @@ services:
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 4
   sql-client: 
-    build: ./sql-client
+    image: floodplain/sql-client:latest
     command: bin/sql-client.sh 
     depends_on: 
       - jobmanager
