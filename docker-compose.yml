@@ -18,7 +18,12 @@ services:
       - "5434:5432"
     environment:
       POSTGRES_PASSWORD: mysecretpassword
-
+  analytics-postgres:
+    image: floodplain/analytics-database:latest
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
   cdcservice:
     image: floodplain/demo-movie:latest
     environment:
@@ -46,12 +51,6 @@ services:
     #   - mongo2
     restart: always
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]        
-  analytics-postgres:
-    image: floodplain/analytics-database:latest
-    ports:
-      - "5435:5432"
-    environment:
-      POSTGRES_PASSWORD: mysecretpassword
   redpanda:
     command:
     - redpanda
