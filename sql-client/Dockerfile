@@ -25,6 +25,7 @@ FROM flink:1.14.4
 
 # Create CLI lib folder
 COPY bin/* /opt/sql-client/
+COPY sql/* /opt/sql/
 RUN mkdir -p /opt/sql-client/lib
 
 # Download connector libraries
