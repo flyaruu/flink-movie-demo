@@ -274,3 +274,38 @@ address_id SMALLINT,
             'properties.bootstrap.servers' = 'redpanda:29092',
             'properties.group.id' = 'analytics'
         );
+
+CREATE TABLE reviewers (
+    _id STRING,
+    personid bigint,
+    reviews ARRAY<ROW<id STRING, summary STRING, movie_id INT, score FLOAT>>,
+PRIMARY KEY (_id) NOT ENFORCED
+)
+    WITH (
+        'connector' = 'mongodb-cdc',
+        'hosts' = 'mongo1:27017',
+        'database' = 'review_database',
+        'collection' = 'reviewers'
+);
+
+CREATE VIEW reviews AS
+    SELECT rv.personid,r.id,r.summary,r.movie_id,r.score FROM reviewers rv 
+        CROSS JOIN UNNEST(rv.reviews) AS r(id,summary,movie_id,score);
+
+CREATE VIEW avgscores AS select r.personid, avg(r.score) as average from reviews r GROUP BY r.personid;
+
+select first_name, average FROM customer, avgscores WHERE customer_id = personid;
+
+CREATE TABLE topscores (
+  id BIGINT,
+  first_name STRING,
+  last_name STRING,
+  score FLOAT,
+  PRIMARY KEY (id) NOT ENFORCED
+) WITH (
+   'connector' = 'jdbc',
+   'url' = 'jdbc:postgresql://analytics-postgres:5432/dvdrental',
+   'username' = 'postgres',
+   'password' = 'mysecretpassword',
+   'table-name' = 'topscores'
+);

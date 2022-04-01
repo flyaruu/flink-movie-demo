@@ -1,3 +1,3 @@
 #!/bin/bash
 
-${FLINK_HOME}/bin/sql-client.sh embedded -l ${SQL_CLIENT_HOME}/lib
+${FLINK_HOME}/bin/sql-client.sh embedded -l ${SQL_CLIENT_HOME}/lib -i /opt/sql/init.sql
