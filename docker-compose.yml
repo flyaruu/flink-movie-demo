@@ -80,6 +80,8 @@ services:
     - 29092:29092
   kafkaui:
     image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - redpanda
     ports:
       - 8082:8080
     environment:
