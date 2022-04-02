@@ -31,6 +31,7 @@ CREATE TABLE customer (
 
 
 ALTER TABLE public.customer OWNER TO postgres;
+ALTER TABLE public.customer REPLICA IDENTITY FULL;
 
 --
 -- Data for Name: customer; Type: TABLE DATA; Schema: public; Owner: postgres

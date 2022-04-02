@@ -96,7 +96,7 @@ CREATE VIEW reviews AS
 
 CREATE VIEW avgscores AS select r.personid, avg(r.score) as average from reviews r GROUP BY r.personid;
 
-select first_name, average FROM customer, avgscores WHERE customer_id = personid;
+select id, first_name, last_name, average FROM customer, avgscores WHERE customer_id = personid;
 
 CREATE TABLE topscores (
   id BIGINT,
