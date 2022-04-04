@@ -90,13 +90,33 @@ PRIMARY KEY (_id) NOT ENFORCED
         'collection' = 'reviewers'
 );
 
+SELECT UNNEST(rv.reviews) from reviewers rv
+
 CREATE VIEW reviews AS
     SELECT rv.personid,r.id,r.summary,r.movie_id,r.score FROM reviewers rv 
         CROSS JOIN UNNEST(rv.reviews) AS r(id,summary,movie_id,score);
 
-CREATE VIEW avgscores AS select r.personid, avg(r.score) as average from reviews r GROUP BY r.personid;
 
-select id, first_name, last_name, average FROM customer, avgscores WHERE customer_id = personid;
+CREATE VIEW reviews AS
+    SELECT rv.personid,r.id,r.summary,r.movie_id,r.score 
+        FROM reviewers rv 
+            CROSS JOIN UNNEST(rv.reviews) AS r(id,summary,movie_id,score);
+
+
+
+CREATE VIEW avgscores AS select r.personid, avg(r.score) as average,count(r.id) as `count` from reviews r GROUP BY r.personid;
+
+
+select customer_id, first_name, last_name, average FROM customer, (
+    select r.personid, avg(r.score) as average from (SELECT rv.personid,r.id,r.summary,r.movie_id,r.score FROM reviewers rv 
+        CROSS JOIN UNNEST(rv.reviews) AS r(id,summary,movie_id,score)) r GROUP BY r.personid
+) WHERE customer_id = personid;
+
+
+
+
+select customer_id, first_name, last_name, average FROM customer, avgscores WHERE customer_id = personid;
+
 
 CREATE TABLE topscores (
   id BIGINT,
@@ -111,3 +131,9 @@ CREATE TABLE topscores (
    'password' = 'mysecretpassword',
    'table-name' = 'topscores'
 );
+
+
+CREATE VIEW avgscores2 AS select r.personid, avg(r.score) as average from (SELECT rv.personid,r.id,r.summary,r.movie_id,r.score FROM reviewers rv 
+        CROSS JOIN UNNEST(rv.reviews) AS r(id,summary,movie_id,score)) r GROUP BY r.personid;
+
+select customer_id, first_name, last_name, average FROM customer, avgscores WHERE customer_id = personid;
