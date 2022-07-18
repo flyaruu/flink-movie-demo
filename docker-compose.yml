@@ -1,19 +1,20 @@
 version: '2'
 services:
   film:
-    image: floodplain/film-database:latest
+    build: ./film
     ports:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: mysecretpassword
   customer:
-    image: floodplain/customer-database:latest
+ #   image: floodplain/customer-database:latest
+    build: ./customer
     ports:
       - "5433:5432"
     environment:
       POSTGRES_PASSWORD: mysecretpassword
   rental:
-    image: floodplain/rental-database:latest
+    build: ./rental
     ports:
       - "5434:5432"
     environment:
@@ -69,14 +70,14 @@ services:
     - --set redpanda.enable_idempotence=true
     - --set redpanda.enable_transactions=true
     # NOTE: Please use the latest version here!
-    image: docker.vectorized.io/vectorized/redpanda:v21.11.4
+    image: docker.vectorized.io/vectorized/redpanda:v22.1.4
     container_name: redpanda-1
     ports:
     - 8080:8081
     - 9092:9092
     - 29092:29092
   kafkaui:
-    image: provectuslabs/kafka-ui:latest
+    image: provectuslabs/kafka-ui:master
     depends_on:
       - redpanda
     ports:
@@ -84,9 +85,10 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_NAME=filminfo
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=redpanda:29092
+      - KAFKA_CLUSTERS_0_SCHEMAREGISTRY=http://redpanda:8081
       - BOOTSTRAP_SERVERS=redpanda:29092
   connect:
-    image: debezium/connect:1.8.1.Final
+    image: debezium/connect:1.9.5.Final
     depends_on: 
       - redpanda
     ports:
@@ -101,7 +103,8 @@ services:
       - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://redpanda:8081
       - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://redpanda:8081
   jobmanager:
-    image: floodplain/flink:latest
+#    image: flink:1.15.1-scala_2.12-java11
+    build: ./flink
     ports:
       - "8081:8081"
     command: jobmanager
@@ -110,7 +113,8 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
   taskmanager:
-    image: floodplain/flink:latest
+#    image: flink:1.15.1-scala_2.12-java11
+    build: ./flink
     depends_on:
       - jobmanager
     command: taskmanager
@@ -121,10 +125,12 @@ services:
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 4
   sql-client: 
-    image: floodplain/sql-client:latest
+#    image: floodplain/sql-client:latest
+    build: ./sql-client
     command: bin/sql-client.sh 
     depends_on: 
       - jobmanager
+      - taskmanager
     environment:
       - |
         FLINK_PROPERTIES=
