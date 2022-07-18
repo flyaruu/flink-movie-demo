@@ -12,6 +12,9 @@
     "key.converter": "io.confluent.connect.avro.AvroConverter",
     "value.converter": "io.confluent.connect.avro.AvroConverter",
     "key.converter.schema.registry.url": "http://redpanda:8081",
-    "value.converter.schema.registry.url": "http://redpanda:8081"
+    "value.converter.schema.registry.url": "http://redpanda:8081",
+    "topic.creation.default.replication.factor": 1,
+    "topic.creation.default.partitions": 5,
+    "topic.creation.default.cleanup.policy": "compact"
   }
 }
