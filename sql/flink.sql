@@ -71,9 +71,6 @@ CREATE TABLE customer_country WITH (
 ) LIKE customer.dvdrental.`public.country` ( 
 EXCLUDING OPTIONS);
 
-,
-
-
 select cu.customer_id, co.country from customer cu, address a, city c, country co where c.country_id = co.country_id AND a.city_id = c.city_id and cu.address_id = a.address_id;
 
 
@@ -97,10 +94,10 @@ CREATE VIEW reviews AS
         CROSS JOIN UNNEST(rv.reviews) AS r(id,summary,movie_id,score);
 
 
-CREATE VIEW reviews AS
-    SELECT rv.personid,r.id,r.summary,r.movie_id,r.score 
-        FROM reviewers rv 
-            CROSS JOIN UNNEST(rv.reviews) AS r(id,summary,movie_id,score);
+    CREATE VIEW reviews AS
+        SELECT rv.personid,r.id,r.summary,r.movie_id,r.score 
+            FROM reviewers rv 
+                CROSS JOIN UNNEST(rv.reviews) AS r(id,summary,movie_id,score);
 
 
 
@@ -134,6 +131,15 @@ CREATE TABLE topscores (
 
 
 CREATE VIEW avgscores2 AS select r.personid, avg(r.score) as average from (SELECT rv.personid,r.id,r.summary,r.movie_id,r.score FROM reviewers rv 
-        CROSS JOIN UNNEST(rv.reviews) AS r(id,summary,movie_id,score)) r GROUP BY r.personid;
+        CROSS JOIN  (rv.reviews) AS r(id,summary,movie_id,score)) r GROUP BY r.personid;
 
 select customer_id, first_name, last_name, average FROM customer, avgscores WHERE customer_id = personid;
+
+ select MONTH(date_of_birth), YEAR(date_of_birth) from customer;
+
+ select FLOOR(YEAR(date_of_birth)/10)*10 from customer;
+
+ SELECT r.rental_id rental_id, FLOOR(YEAR(c.date_of_birth)/10)*10 agebracket, r.inventory_id, i.film_id 
+FROM rental r, customer c, inventory i
+WHERE r.customer_id = c.customer_id
+    AND r.inventory_id = i.inventory_id;
