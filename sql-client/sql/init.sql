@@ -59,7 +59,7 @@ last_name STRING,
 email STRING,
 address_id BIGINT,
 activebool BOOLEAN,
-create_date DATE,
+date_of_birth DATE,
             `record_time` TIMESTAMP_LTZ(3) METADATA FROM 'timestamp'
             ,
     last_update BIGINT,
