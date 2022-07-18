@@ -24,7 +24,7 @@ CREATE TABLE customer (
     email character varying(50),
     address_id smallint NOT NULL,
     activebool boolean DEFAULT true NOT NULL,
-    create_date date DEFAULT ('now'::text)::date NOT NULL,
+    date_of_birth date DEFAULT ('now'::text)::date NOT NULL,
     last_update timestamp without time zone DEFAULT now(),
     active integer
 );
@@ -37,9 +37,9 @@ ALTER TABLE public.customer REPLICA IDENTITY FULL;
 -- Data for Name: customer; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY customer (customer_id, store_id, first_name, last_name, email, address_id, activebool, create_date, last_update, active) FROM stdin;
+COPY customer (customer_id, store_id, first_name, last_name, email, address_id, activebool, date_of_birth, last_update, active) FROM stdin;
 \.
-COPY customer (customer_id, store_id, first_name, last_name, email, address_id, activebool, create_date, last_update, active) FROM '/docker-entrypoint-initdb.d/customer.dat';
+COPY customer (customer_id, store_id, first_name, last_name, email, address_id, activebool, date_of_birth, last_update, active) FROM '/docker-entrypoint-initdb.d/customer.dat';
 
 --
 -- Name: customer_customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
