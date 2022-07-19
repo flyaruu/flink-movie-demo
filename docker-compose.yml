@@ -20,7 +20,9 @@ services:
     environment:
       POSTGRES_PASSWORD: mysecretpassword
   analytics-postgres:
-    image: floodplain/analytics-database:latest
+#    image: floodplain/analytics-database:latest
+    build: ./analytics
+
     ports:
       - "5435:5432"
     environment:
