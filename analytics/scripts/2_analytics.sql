@@ -11,6 +11,13 @@ CREATE TABLE rental_anonymized (
 	agebracket integer,
 	rental_count integer
 );
+CREATE TABLE rental_anonymized (
+	film_id int4 NOT NULL,
+	agebracket int4 NOT NULL,
+	rental_count int4 null,
+	primary key (film_id,agebracket)
+);
+
 
 create table rental_by_age (
 	agebracket BIGINT primary key,

@@ -139,7 +139,68 @@ select customer_id, first_name, last_name, average FROM customer, avgscores WHER
 
  select FLOOR(YEAR(date_of_birth)/10)*10 from customer;
 
- SELECT r.rental_id rental_id, FLOOR(YEAR(c.date_of_birth)/10)*10 agebracket, r.inventory_id, i.film_id 
+SELECT r.rental_id rental_id, FLOOR(YEAR(c.date_of_birth)/10)*10 agebracket, r.inventory_id, i.film_id 
 FROM rental r, customer c, inventory i
 WHERE r.customer_id = c.customer_id
     AND r.inventory_id = i.inventory_id;
+
+
+-- Create anonymized rental view
+CREATE VIEW ANON_RENTAL AS SELECT r.rental_id rental_id, FLOOR(YEAR(c.date_of_birth)/10)*10 agebracket, r.inventory_id, i.film_id 
+FROM rental r, customer c, inventory i
+WHERE r.customer_id = c.customer_id
+    AND r.inventory_id = i.inventory_id;
+
+-- query
+INSERT INTO rental_anonymized
+SELECT count(rental_id) as rental_count, agebracket from ANON_RENTAL GROUP BY agebracket;
+
+INSERT INTO rental_anonymized 
+SELECT film_id, agebracket, count(rental_id) as rental_count from ANON_RENTAL GROUP BY agebracket,film_id;
+
+
+CREATE TABLE rental_anonymized (
+	film_id SMALLINT,
+	agebracket BIGINT,
+	rental_count BIGINT NOT NULL,
+	PRIMARY KEY (film_id,agebracket)
+) WITH (
+    'connector' = 'jdbc',
+    'url' = 'jdbc:postgresql://analytics-postgres:5432/dvdrental',
+    'username' = 'postgres',
+    'password' = 'mysecretpassword',
+    'table-name' = 'rental_anonymized'
+ );
+
+ CREATE TABLE rental_by_age (
+	agebracket BIGINT PRIMARY KEY,
+	rental_count BIGINT NOT NULL
+) WITH (
+    'connector' = 'jdbc',
+    'url' = 'jdbc:postgresql://analytics-postgres:5432/dvdrental',
+    'username' = 'postgres',
+    'password' = 'mysecretpassword',
+    'table-name' = 'rental_by_age'
+ );
+
+
+#############
+ INSERT INTO rental_by_age SELECT agebracket,count(rental_id) as rental_count from ANON_RENTAL GROUP BY agebracket;
+
+
+Flink SQL> CREATE TABLE rental_anonymized (
+>         film_id SMALLINT,
+>         agebracket BIGINT,
+>         rental_count BIGINT NOT NULL,
+>         PRIMARY KEY (film_id,agebracket) NOT ENFORCED
+> ) WITH (
+>     'connector' = 'jdbc',
+>     'url' = 'jdbc:postgresql://analytics-postgres:5432/dvdrental',
+>     'username' = 'postgres',
+>     'password' = 'mysecretpassword',
+>     'table-name' = 'rental_anonymized'
+>  );
+[INFO] Execute statement succeed.
+
+Flink SQL> INSERT INTO rental_anonymized SELECT film_id,count(rental_id) as rental_count, agebracket from ANON_RENTAL GROUP BY agebracket,film_id;
+

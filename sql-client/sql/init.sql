@@ -307,3 +307,15 @@ CREATE TABLE topscores (
    'password' = 'mysecretpassword',
    'table-name' = 'topscores'
 );
+
+--CREATE TABLE rental_by_age (
+--	agebracket BIGINT,
+--	rental_count BIGINT,
+--    PRIMARY KEY (agebracket) NOT ENFORCED
+--) WITH (
+--    'connector' = 'jdbc',
+--    'url' = 'jdbc:postgresql://analytics-postgres:5432/dvdrental',
+--    'username' = 'postgres',
+--    'password' = 'mysecretpassword',
+--    'table-name' = 'rental_by_age'
+-- );
