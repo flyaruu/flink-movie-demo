@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/flyaruu/flink-movie-demo.svg?style=svg)](https://circleci.com/gh/flyaruu/flink-movie-demo)
+
 Container with a postgres 14 database containing the example dvd rental database.
 
 http://www.postgresqltutorial.com/postgresql-sample-database/
@@ -24,4 +26,5 @@ https://github.com/ghusta/docker-postgres-world-db
 Flink setup based on:
 
 https://github.com/ververica/flink-sql-CDC
+
 originally created by Marta Paes
