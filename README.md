@@ -20,3 +20,8 @@ staff -> address
 Loosely based on:
 
 https://github.com/ghusta/docker-postgres-world-db
+
+Flink setup based on:
+
+https://github.com/ververica/flink-sql-CDC
+originally created by Marta Paes

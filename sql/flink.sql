@@ -163,7 +163,7 @@ CREATE TABLE rental_anonymized (
 	film_id SMALLINT,
 	agebracket BIGINT,
 	rental_count BIGINT NOT NULL,
-	PRIMARY KEY (film_id,agebracket)
+	PRIMARY KEY (film_id,agebracket)  NOT ENFORCED
 ) WITH (
     'connector' = 'jdbc',
     'url' = 'jdbc:postgresql://analytics-postgres:5432/dvdrental',

@@ -9,35 +9,4 @@ jobs:
 
       # build the application image
       - run: |
-          MINORTAG=1.0
-          TAG=$MINORTAG.$CIRCLE_BUILD_NUM
-          IMAGE=floodplain/film-database
-          echo "Building tag: $TAG"
-          docker build -t $IMAGE:$TAG -t $IMAGE:latest ./film
-          docker push $IMAGE:$TAG
-          docker push $IMAGE:latest
-          IMAGE=floodplain/customer-database
-          echo "Building tag: $TAG"
-          docker build -t $IMAGE:$TAG -t $IMAGE:latest ./customer
-          docker push $IMAGE:$TAG
-          docker push $IMAGE:latest
-          IMAGE=floodplain/rental-database
-          echo "Building tag: $TAG"
-          docker build -t $IMAGE:$TAG -t $IMAGE:latest ./rental
-          docker push $IMAGE:$TAG
-          docker push $IMAGE:latest
-          IMAGE=floodplain/flink
-          echo "Building tag: $TAG"
-          docker build -t $IMAGE:$TAG -t $IMAGE:latest ./flink
-          docker push $IMAGE:$TAG
-          docker push $IMAGE:latest
-          IMAGE=floodplain/sql-client
-          echo "Building tag: $TAG"
-          docker build -t $IMAGE:$TAG -t $IMAGE:latest ./sql-client
-          docker push $IMAGE:$TAG
-          docker push $IMAGE:latest
-          IMAGE=floodplain/analytics-database
-          echo "Building tag: $TAG"
-          docker build -t $IMAGE:$TAG -t $IMAGE:latest ./analytics
-          docker push $IMAGE:$TAG
-          docker push $IMAGE:latest
+          docker-compose build
