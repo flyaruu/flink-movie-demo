@@ -1,12 +1,15 @@
-version: 2
-jobs:
-  build:
-    machine: true
-    steps:
-      - checkout
-      - run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PASS
+version: 2.1
 
-      # build the application image
-      - run: |
-          docker-compose build
+jobs:
+ build:
+   machine:
+    image: ubuntu-2204:2022.04.2
+   steps:
+     - checkout
+     # start proprietary DB using private Docker image
+     # with credentials stored in the UI
+     - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+     # build the application image
+     - run: docker build -t floodplain/flink-movie-demo:$CIRCLE_BRANCH .
+     # deploy the image
+     - run: docker push floodplain/flink-movie-demo:$CIRCLE_BRANCH

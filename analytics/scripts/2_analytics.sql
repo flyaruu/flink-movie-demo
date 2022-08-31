@@ -7,11 +7,6 @@ CREATE TABLE topscores (
 );
 
 CREATE TABLE rental_anonymized (
-	film_id integer,
-	agebracket integer,
-	rental_count integer
-);
-CREATE TABLE rental_anonymized (
 	film_id int4 NOT NULL,
 	agebracket int4 NOT NULL,
 	rental_count int4 null,
