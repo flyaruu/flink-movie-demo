@@ -49,7 +49,7 @@ services:
     - --set redpanda.enable_idempotence=true
     - --set redpanda.enable_transactions=true
     # NOTE: Please use the latest version here!
-    image: docker.vectorized.io/vectorized/redpanda:v22.1.4
+    image: docker.redpanda.com/vectorized/redpanda:latest
     container_name: redpanda-1
     ports:
     - 8080:8081
@@ -111,3 +111,28 @@ services:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+  console:
+    image: vectorized/console:latest
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:29092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+        connect:
+          enabled: true
+          clusters:
+            - name: local-connect-cluster
+              url: http://connect:8083
+    ports:
+      - 8082:8080
+    depends_on:
+      - redpanda
