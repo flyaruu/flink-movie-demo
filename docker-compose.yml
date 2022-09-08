@@ -55,17 +55,6 @@ services:
     - 8080:8081
     - 9092:9092
     - 29092:29092
-  kafkaui:
-    image: provectuslabs/kafka-ui:master
-    depends_on:
-      - redpanda
-    ports:
-      - 8085:8080
-    environment:
-      - KAFKA_CLUSTERS_0_NAME=filminfo
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=redpanda:29092
-      - KAFKA_CLUSTERS_0_SCHEMAREGISTRY=http://redpanda:8081
-      - BOOTSTRAP_SERVERS=redpanda:29092
   connect:
     image: debezium/connect:1.9.5.Final
     depends_on: 
