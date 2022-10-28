@@ -1,3 +1,10 @@
+[![CircleCI](https://circleci.com/gh/flyaruu/flink-movie-demo.svg?style=svg)](https://circleci.com/gh/flyaruu/flink-movie-demo)
+
+Thanks for checking out my demo, and thanks for watching my talk (I suppose), if you want to talk, reach out to me me at:
+
+Linkedin: https://www.linkedin.com/in/lyaruu/
+Twitter: @lyaruu
+
 Container with a postgres 14 database containing the example dvd rental database.
 
 http://www.postgresqltutorial.com/postgresql-sample-database/
@@ -20,3 +27,9 @@ staff -> address
 Loosely based on:
 
 https://github.com/ghusta/docker-postgres-world-db
+
+Flink setup based on:
+
+https://github.com/ververica/flink-sql-CDC
+
+originally created by Marta Paes

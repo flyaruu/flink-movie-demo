@@ -7,7 +7,6 @@ services:
     environment:
       POSTGRES_PASSWORD: mysecretpassword
   customer:
- #   image: floodplain/customer-database:latest
     build: ./customer
     ports:
       - "5433:5432"
@@ -20,45 +19,18 @@ services:
     environment:
       POSTGRES_PASSWORD: mysecretpassword
   analytics-postgres:
-#    image: floodplain/analytics-database:latest
     build: ./analytics
-
     ports:
       - "5435:5432"
     environment:
       POSTGRES_PASSWORD: mysecretpassword
   rental-rust:
     image: floodplain/rust-rental:latest
+    depends_on:
+      - "rental"
     environment:
       DATABASE_URL: postgres://postgres:mysecretpassword@rental:5432/dvdrental
       SLEEP_MILLIS: 100
-  cdcservice:
-    image: floodplain/demo-movie:latest
-    environment:
-      POSTGRES_USERNAME: postgres
-      POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_REACTIVE_URL: postgresql://rental:5432/dvdrental
-    depends_on:
-      - "rental"
-    ports:
-      - "8084:8080"
-  review:
-    image: floodplain/demo-mongodb-review:latest
-    environment:
-      MONGODB_CONNECTION_STRING: mongodb://mongo1:27017/?replicaSet=dbrs
-    depends_on:
-      - mongo1
-  mongo1:
-    container_name: mongo1
-    image: mongo:4.4
-    volumes:
-      - ./mongodb-replica-set/rs-init.sh:/scripts/rs-init.sh
-    ports:
-      - 27017:27017
-    # links:
-    #   - mongo2
-    restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]        
   redpanda:
     command:
     - redpanda
@@ -77,44 +49,12 @@ services:
     - --set redpanda.enable_idempotence=true
     - --set redpanda.enable_transactions=true
     # NOTE: Please use the latest version here!
-    image: docker.vectorized.io/vectorized/redpanda:v22.1.4
+    image: docker.redpanda.com/vectorized/redpanda:latest
     container_name: redpanda-1
     ports:
     - 8080:8081
     - 9092:9092
     - 29092:29092
-  kafkaui:
-    image: provectuslabs/kafka-ui:master
-    depends_on:
-      - redpanda
-    ports:
-      - 8085:8080
-    environment:
-      - KAFKA_CLUSTERS_0_NAME=filminfo
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=redpanda:29092
-      - KAFKA_CLUSTERS_0_SCHEMAREGISTRY=http://redpanda:8081
-      - BOOTSTRAP_SERVERS=redpanda:29092
-  kowl:
-    image: quay.io/cloudhut/kowl:master-1d07695
-    entrypoint: /bin/sh
-    command: -c "echo \"$$KOWL_CONFIG_FILE\" > /tmp/config.yml; /app/kowl"
-    environment:
-      CONFIG_FILEPATH: /tmp/config.yml
-      KOWL_CONFIG_FILE: |
-        kafka:
-          brokers: ["redpanda:29092"]
-          schemaRegistry:
-            enabled: true
-            urls: ["http://redpanda:8081"]
-        connect:
-          enabled: true
-          clusters:
-            - name: dbz
-              url: http://debezium:8083
-    ports:
-      - 8082:8080
-    depends_on:
-      - redpanda
   connect:
     image: debezium/connect:1.9.5.Final
     depends_on: 
@@ -131,7 +71,6 @@ services:
       - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://redpanda:8081
       - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://redpanda:8081
   jobmanager:
-#    image: flink:1.15.1-scala_2.12-java11
     build: ./flink
     ports:
       - "8081:8081"
@@ -141,7 +80,6 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
   taskmanager:
-#    image: flink:1.15.1-scala_2.12-java11
     build: ./flink
     depends_on:
       - jobmanager
@@ -153,7 +91,6 @@ services:
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 4
   sql-client: 
-#    image: floodplain/sql-client:latest
     build: ./sql-client
     command: bin/sql-client.sh 
     depends_on: 
@@ -163,3 +100,28 @@ services:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+  console:
+    image: vectorized/console:latest
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:29092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+        connect:
+          enabled: true
+          clusters:
+            - name: local-connect-cluster
+              url: http://connect:8083
+    ports:
+      - 8082:8080
+    depends_on:
+      - redpanda
